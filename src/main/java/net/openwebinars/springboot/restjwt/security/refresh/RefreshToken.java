@@ -1,30 +1,27 @@
-package net.openwebinars.springboot.restjwt.security.jwt.refresh;
+package net.openwebinars.springboot.restjwt.security.refresh;
 
+import jakarta.persistence.*;
 import lombok.*;
 import net.openwebinars.springboot.restjwt.user.model.User;
 import org.hibernate.annotations.NaturalId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Builder
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
 public class RefreshToken {
-
     @Id
     private UUID id;
 
     @MapsId
     @OneToOne
-    @JoinColumn(name = "user_id", columnDefinition = "uuid")
+    @JoinColumn(name="user_id", columnDefinition = "uuid")
     private User user;
 
     @NaturalId
@@ -38,4 +35,3 @@ public class RefreshToken {
     private Instant createdAt;
 
 }
-

@@ -1,15 +1,13 @@
-package net.openwebinars.springboot.restjwt.security.jwt.refresh;
+package net.openwebinars.springboot.restjwt.security.refresh;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor @AllArgsConstructor
 public class RefreshTokenRequest {
 
     private String refreshToken;
-
 }
 
