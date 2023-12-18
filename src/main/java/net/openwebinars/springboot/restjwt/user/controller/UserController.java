@@ -2,6 +2,10 @@ package net.openwebinars.springboot.restjwt.user.controller;
 
 import lombok.RequiredArgsConstructor;
 import net.openwebinars.springboot.restjwt.security.jwt.access.JwtProvider;
+import net.openwebinars.springboot.restjwt.security.refresh.RefreshToken;
+import net.openwebinars.springboot.restjwt.security.refresh.RefreshTokenException;
+import net.openwebinars.springboot.restjwt.security.refresh.RefreshTokenRequest;
+import net.openwebinars.springboot.restjwt.security.refresh.RefreshTokenService;
 import net.openwebinars.springboot.restjwt.user.dto.*;
 import net.openwebinars.springboot.restjwt.user.model.User;
 import net.openwebinars.springboot.restjwt.user.service.UserService;
@@ -25,6 +29,7 @@ public class UserController {
     private final UserService userService;
     private final AuthenticationManager authManager;
     private final JwtProvider jwtProvider;
+    private final RefreshTokenService refreshTokenService;
 
 
     @PostMapping("/auth/register")
@@ -109,4 +114,24 @@ public class UserController {
     }
 
 
+    @PostMapping("refreshToken")
+    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest){
+        String refreshToken = refreshTokenRequest.getRefreshToken();
+
+        return refreshTokenService.findByToken(refreshToken)
+                .map(refreshTokenService::verify)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String token = jwtProvider.generateToken(user);
+                    refreshTokenService.deleteByUser(user);
+                    RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
+
+                    return ResponseEntity.status((HttpStatus.CREATED))
+                            .body(JwtUserResponse.builder()
+                                    .token((token))
+                                    .refreshToken(newRefreshToken.getToken())
+                                    .build());
+                })
+                .orElseThrow(() -> new RefreshTokenException("Unable to generate new refresh token."));
+    }
 }
